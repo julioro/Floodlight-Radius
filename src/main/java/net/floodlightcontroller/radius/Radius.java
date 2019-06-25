@@ -32,10 +32,13 @@ public class Radius implements IFloodlightModule, IOFMessageListener {
 	protected IFloodlightProviderService floodlightProvider;
 	protected static Logger logger;
 
+	
+
 	@Override
 	public String getName() {
 		// TODO Auto-generated method stub
-		return null;
+		return Radius.class.getSimpleName();
+		//return null;
 	}
 
 	@Override
@@ -55,6 +58,10 @@ public class Radius implements IFloodlightModule, IOFMessageListener {
         logger.info("\n\n\nSE ESTÁ EJECUTANDO EL MODULO:\n\tRADIUS\n\n\n");
 		/*... COMPLETAR REVISAR BIEN QUE DEBE IR AQUI
          * ACA SE DEFINE EL COMPORTAMIENTO DEL MODULO ... */
+        Ethernet eth =
+                IFloodlightProviderService.bcStore.get(cntx,
+                                            IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
+
         return Command.CONTINUE;
     }
 
@@ -72,9 +79,11 @@ public class Radius implements IFloodlightModule, IOFMessageListener {
 
 	@Override
 	public Collection<Class<? extends IFloodlightService>> getModuleDependencies() {
-		Collection<Class<? extends IFloodlightService>> l = new ArrayList<Class<? extends IFloodlightService>>();
-		l.add(IFloodlightProviderService.class);
+		Collection<Class<? extends IFloodlightService>> l =
+		        new ArrayList<Class<? extends IFloodlightService>>();
+		    l.add(IFloodlightProviderService.class);
 		/* ... COMPLETAR CON LOS MODULOS QUE NECESITAN ... */
+
 		return l;
 	}
 
