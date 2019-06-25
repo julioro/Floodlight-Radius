@@ -1,5 +1,5 @@
 /**
- *
+ *Archivo base para el modulo de Radius
  *
  *
  */
