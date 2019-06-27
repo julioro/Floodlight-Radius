@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.projectfloodlight.openflow.protocol.OFMessage;
 import org.projectfloodlight.openflow.protocol.OFType;
+import org.projectfloodlight.openflow.types.EthType;
 
 import net.floodlightcontroller.core.FloodlightContext;
 import net.floodlightcontroller.core.IOFMessageListener;
@@ -23,7 +24,11 @@ import net.floodlightcontroller.core.IFloodlightProviderService;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.Set;
+
+import net.floodlightcontroller.packet.EAP_OVER_LAN;
 import net.floodlightcontroller.packet.Ethernet;
+import net.floodlightcontroller.packet.RADIUS;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,13 +37,11 @@ public class Radius implements IFloodlightModule, IOFMessageListener {
 	protected IFloodlightProviderService floodlightProvider;
 	protected static Logger logger;
 
-	
-
 	@Override
 	public String getName() {
 		// TODO Auto-generated method stub
 		return Radius.class.getSimpleName();
-		//return null;
+		// return null;
 	}
 
 	@Override
@@ -54,16 +57,31 @@ public class Radius implements IFloodlightModule, IOFMessageListener {
 	}
 
 	@Override
-    public net.floodlightcontroller.core.IListener.Command receive(IOFSwitch sw, OFMessage msg, FloodlightContext cntx) {
-        logger.info("\n\n\nSE ESTÁ EJECUTANDO EL MODULO:\n\tRADIUS\n\n\n");
-		/*... COMPLETAR REVISAR BIEN QUE DEBE IR AQUI
-         * ACA SE DEFINE EL COMPORTAMIENTO DEL MODULO ... */
-        Ethernet eth =
-                IFloodlightProviderService.bcStore.get(cntx,
-                                            IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
-
-        return Command.CONTINUE;
-    }
+	public net.floodlightcontroller.core.IListener.Command receive(IOFSwitch sw, OFMessage msg,
+			FloodlightContext cntx) {
+		logger.info("\n\n\nSE ESTÁ EJECUTANDO EL MODULO:\n\tRADIUS\n\n\n");
+		
+		/*
+		 * ... COMPLETAR REVISAR BIEN QUE DEBE IR AQUI ACA SE DEFINE EL COMPORTAMIENTO
+		 * DEL MODULO ...
+		 */
+		
+		Ethernet eth = IFloodlightProviderService.bcStore.get(cntx, IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
+		switch (msg.getType()) {
+		case PACKET_IN:
+			if (eth.getEtherType() != EthType.EAP_OVER_LAN) {
+				EAP_OVER_LAN eap_packet = (EAP_OVER_LAN) eth.getPayload();
+				RADIUS radius_packet = (RADIUS) eth.getPayload();
+				// REVISAR A QUE LO DEBO TRANSFORMAR
+				logger.info(eth.toString());
+			}
+			
+			break;
+		default:
+			break;
+		}
+		return Command.CONTINUE;
+	}
 
 	@Override
 	public Collection<Class<? extends IFloodlightService>> getModuleServices() {
@@ -79,9 +97,8 @@ public class Radius implements IFloodlightModule, IOFMessageListener {
 
 	@Override
 	public Collection<Class<? extends IFloodlightService>> getModuleDependencies() {
-		Collection<Class<? extends IFloodlightService>> l =
-		        new ArrayList<Class<? extends IFloodlightService>>();
-		    l.add(IFloodlightProviderService.class);
+		Collection<Class<? extends IFloodlightService>> l = new ArrayList<Class<? extends IFloodlightService>>();
+		l.add(IFloodlightProviderService.class);
 		/* ... COMPLETAR CON LOS MODULOS QUE NECESITAN ... */
 
 		return l;
