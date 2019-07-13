@@ -7,10 +7,12 @@
 package net.floodlightcontroller.radius;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.projectfloodlight.openflow.protocol.OFMessage;
 import org.projectfloodlight.openflow.protocol.OFType;
+import org.projectfloodlight.openflow.protocol.action.OFAction;
 import org.projectfloodlight.openflow.types.EthType;
 
 import net.floodlightcontroller.core.FloodlightContext;
@@ -67,17 +69,26 @@ public class Radius implements IFloodlightModule, IOFMessageListener {
 		 */
 		
 		Ethernet eth = IFloodlightProviderService.bcStore.get(cntx, IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
+		logger.info("Ethertype:\t"+eth.getEtherType().toString());
+		logger.info(eth.toString());
+		
 		switch (msg.getType()) {
 		case PACKET_IN:
-			if (eth.getEtherType() != EthType.EAP_OVER_LAN) {
-				EAP_OVER_LAN eap_packet = (EAP_OVER_LAN) eth.getPayload();
-				RADIUS radius_packet = (RADIUS) eth.getPayload();
+			if (eth.getEtherType() == EthType.EAP_OVER_LAN) {
+				//EAP_OVER_LAN eap_packet = (EAP_OVER_LAN) eth.getPayload();
+				//RADIUS radius_packet = (RADIUS) eth.getPayload();
 				// REVISAR A QUE LO DEBO TRANSFORMAR
 				logger.info(eth.toString());
+				logger.info("OFMessage:\t" + msg.toString());
+				logger.info("PACEKTS IN ETHERTYPE EAP\n\n\n\n\n");
+				List<OFAction> actionList = new ArrayList<>();
+				//actionList.add(arg0)
+				// redirect
 			}
 			
 			break;
 		default:
+			logger.info("NUNCA DEBE EJECUTARSE ESTO.\n\n\n\n\n");
 			break;
 		}
 		return Command.CONTINUE;
