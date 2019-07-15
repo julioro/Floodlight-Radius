@@ -78,6 +78,7 @@ public class Radius extends Forwarding implements IFloodlightModule, IOFMessageL
 			FloodlightContext cntx) {
 		Ethernet eth = IFloodlightProviderService.bcStore.get(cntx, IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
 		logger.info("\nRadius.java\n");
+		logger.info(eth.getEtherType().toString());
 		switch (msg.getType()) {
 		case PACKET_IN:
 			if (eth.getEtherType() == EthType.EAP_OVER_LAN) {
@@ -85,7 +86,6 @@ public class Radius extends Forwarding implements IFloodlightModule, IOFMessageL
 				logger.info(eth.toString());
 				logger.info("OFMessage:\t" + msg.toString());
 				logger.info("PACEKTS IN ETHERTYPE EAP\n\n\n\n\n");
-
 				OFPacketIn pi = (OFPacketIn) msg;
 				OFPort inPort = (pi.getVersion().compareTo(OFVersion.OF_12) < 0 ? pi.getInPort()
 						: pi.getMatch().get(MatchField.IN_PORT));
@@ -101,12 +101,9 @@ public class Radius extends Forwarding implements IFloodlightModule, IOFMessageL
 
 				OFFlowMod fm = fmb.build();
 				DatapathId swDpid = (DatapathId) sw.getId();
-				String name = "G";
-
+				String name = "The real G";
 				sfp.addFlow(name, fm, swDpid);
-
 			}
-
 			break;
 		default:
 			logger.info("NUNCA DEBE EJECUTARSE ESTO.\n\n\n\n\n");
