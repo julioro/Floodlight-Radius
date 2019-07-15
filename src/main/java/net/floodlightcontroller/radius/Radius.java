@@ -23,6 +23,7 @@ import net.floodlightcontroller.core.module.FloodlightModuleException;
 import net.floodlightcontroller.core.module.IFloodlightModule;
 import net.floodlightcontroller.core.module.IFloodlightService;
 import net.floodlightcontroller.core.IFloodlightProviderService;
+import net.floodlightcontroller.staticflowentry.IStaticFlowEntryPusherService;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.Set;
@@ -38,6 +39,7 @@ public class Radius implements IFloodlightModule, IOFMessageListener {
 
 	protected IFloodlightProviderService floodlightProvider;
 	protected static Logger logger;
+	//protected IStaticFlowEntryPusherService sfp;
 
 	@Override
 	public String getName() {
@@ -75,15 +77,27 @@ public class Radius implements IFloodlightModule, IOFMessageListener {
 		switch (msg.getType()) {
 		case PACKET_IN:
 			if (eth.getEtherType() == EthType.EAP_OVER_LAN) {
-				//EAP_OVER_LAN eap_packet = (EAP_OVER_LAN) eth.getPayload();
-				//RADIUS radius_packet = (RADIUS) eth.getPayload();
-				// REVISAR A QUE LO DEBO TRANSFORMAR
 				logger.info(eth.toString());
 				logger.info("OFMessage:\t" + msg.toString());
 				logger.info("PACEKTS IN ETHERTYPE EAP\n\n\n\n\n");
+				
 				List<OFAction> actionList = new ArrayList<>();
-				//actionList.add(arg0)
-				// redirect
+	        		actionList.add(sw.getOFFactory().actions().output(OFPP_LOCAL_INT, Integer.MAX_VALUE));
+	        		OFPacketOut.Builder po = sw.getOFFactory().buildPacketOut()
+	                		/*.setData(data) No enviamos data. */
+	                		.setActions(actionList)
+	                		.setInPort(OFPort.CONTROLLER)
+	                		.setBufferId(OFBufferId.NO_BUFFER);
+	        		///Enviamos el PacketOut
+	        		try {
+						messageDamper.write(sw, po.build());
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+				}
+
+
+
 			}
 			
 			break;
