@@ -39,12 +39,8 @@ import net.floodlightcontroller.staticflowentry.StaticFlowEntryPusher;
 
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.Set;
-
 import net.floodlightcontroller.packet.EAP_OVER_LAN;
 import net.floodlightcontroller.packet.Ethernet;
-import net.floodlightcontroller.packet.RADIUS;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,12 +73,11 @@ public class Radius extends Forwarding implements IFloodlightModule, IOFMessageL
 	public net.floodlightcontroller.core.IListener.Command receive(IOFSwitch sw, OFMessage msg,
 			FloodlightContext cntx) {
 		Ethernet eth = IFloodlightProviderService.bcStore.get(cntx, IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
-		logger.info("\nRadius.java\n");
 		logger.info(eth.getEtherType().toString());
 		switch (msg.getType()) {
 		case PACKET_IN:
 			if (eth.getEtherType() == EthType.EAP_OVER_LAN) {
-
+				logger.info(eth.getEtherType().toString());
 				logger.info(eth.toString());
 				logger.info("OFMessage:\t" + msg.toString());
 				logger.info("PACEKTS IN ETHERTYPE EAP\n\n\n\n\n");
@@ -102,6 +97,7 @@ public class Radius extends Forwarding implements IFloodlightModule, IOFMessageL
 				OFFlowMod fm = fmb.build();
 				DatapathId swDpid = (DatapathId) sw.getId();
 				String name = "The real G";
+				
 				sfp.addFlow(name, fm, swDpid);
 			}
 			break;
@@ -128,6 +124,7 @@ public class Radius extends Forwarding implements IFloodlightModule, IOFMessageL
 	public Collection<Class<? extends IFloodlightService>> getModuleDependencies() {
 		Collection<Class<? extends IFloodlightService>> l = new ArrayList<Class<? extends IFloodlightService>>();
 		l.add(IFloodlightProviderService.class);
+		//l.add(IStaticFlowEntryPusherService.class);
 		/* ... COMPLETAR CON LOS MODULOS QUE NECESITAN ... */
 
 		return l;
@@ -137,6 +134,7 @@ public class Radius extends Forwarding implements IFloodlightModule, IOFMessageL
 	public void init(FloodlightModuleContext context) throws FloodlightModuleException {
 		floodlightProvider = context.getServiceImpl(IFloodlightProviderService.class);
 		logger = LoggerFactory.getLogger(Radius.class);
+		sfp = context.getServiceImpl(IStaticFlowEntryPusherService.class);
 		/* ... COMPLETAR ALGUNA OTRA DEPENDENCIA QUE FALTE CARGAR ... */
 
 	}
