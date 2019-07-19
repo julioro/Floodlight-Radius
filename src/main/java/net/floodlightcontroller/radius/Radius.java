@@ -35,11 +35,7 @@ import net.floodlightcontroller.core.util.AppCookie;
 import net.floodlightcontroller.forwarding.Forwarding;
 import net.floodlightcontroller.core.IFloodlightProviderService;
 import net.floodlightcontroller.staticflowentry.IStaticFlowEntryPusherService;
-import net.floodlightcontroller.staticflowentry.StaticFlowEntryPusher;
-
 import java.util.ArrayList;
-import java.util.concurrent.ConcurrentSkipListSet;
-import net.floodlightcontroller.packet.EAP_OVER_LAN;
 import net.floodlightcontroller.packet.Ethernet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,10 +69,11 @@ public class Radius extends Forwarding implements IFloodlightModule, IOFMessageL
 	public net.floodlightcontroller.core.IListener.Command receive(IOFSwitch sw, OFMessage msg,
 			FloodlightContext cntx) {
 		Ethernet eth = IFloodlightProviderService.bcStore.get(cntx, IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
-		logger.info(eth.getEtherType().toString());
+		
 		switch (msg.getType()) {
 		case PACKET_IN:
 			if (eth.getEtherType() == EthType.EAP_OVER_LAN) {
+				logger.info("Module Radius.java\nEthertype: " + eth.getEtherType().toString());
 				logger.info(eth.getEtherType().toString());
 				logger.info(eth.toString());
 				logger.info("OFMessage:\t" + msg.toString());
@@ -90,14 +87,14 @@ public class Radius extends Forwarding implements IFloodlightModule, IOFMessageL
 				actions.add(sw.getOFFactory().actions().output(OFPort.LOCAL, Integer.MAX_VALUE));
 
 				U64 cookie = AppCookie.makeCookie(FORWARDING_APP_ID, 0);
-				fmb.setCookie(cookie).setHardTimeout(FLOWMOD_DEFAULT_HARD_TIMEOUT)
-						.setIdleTimeout(FLOWMOD_DEFAULT_IDLE_TIMEOUT).setBufferId(OFBufferId.NO_BUFFER).setMatch(m)
-						.setPriority(FLOWMOD_DEFAULT_PRIORITY).setActions(actions);
+				fmb.setCookie(cookie).setHardTimeout((int) 0 /* FLOWMOD_DEFAULT_HARD_TIMEOUT */)
+						.setIdleTimeout((int) 10 /* FLOWMOD_DEFAULT_IDLE_TIMEOUT */).setBufferId(OFBufferId.NO_BUFFER)
+						.setMatch(m).setPriority((int) 123 /* FLOWMOD_DEFAULT_PRIORITY */).setActions(actions);
 
 				OFFlowMod fm = fmb.build();
 				DatapathId swDpid = (DatapathId) sw.getId();
-				String name = "The real G";
-				
+				String name = "G";
+
 				sfp.addFlow(name, fm, swDpid);
 			}
 			break;
@@ -124,7 +121,7 @@ public class Radius extends Forwarding implements IFloodlightModule, IOFMessageL
 	public Collection<Class<? extends IFloodlightService>> getModuleDependencies() {
 		Collection<Class<? extends IFloodlightService>> l = new ArrayList<Class<? extends IFloodlightService>>();
 		l.add(IFloodlightProviderService.class);
-		//l.add(IStaticFlowEntryPusherService.class);
+		l.add(IStaticFlowEntryPusherService.class);
 		/* ... COMPLETAR CON LOS MODULOS QUE NECESITAN ... */
 
 		return l;
